@@ -80,30 +80,30 @@ end
 Define a type that will derive the interface.
 
 ````julia
-struct SparseDOKArray{T,N} <: AbstractArray{T,N}
+struct SparseArrayDOK{T,N} <: AbstractArray{T,N}
   storage::Dict{CartesianIndex{N},T}
   size::NTuple{N,Int}
 end
-storage(a::SparseDOKArray) = a.storage
-Base.size(a::SparseDOKArray) = a.size
-function SparseDOKArray{T}(size::Int...) where {T}
+storage(a::SparseArrayDOK) = a.storage
+Base.size(a::SparseArrayDOK) = a.size
+function SparseArrayDOK{T}(size::Int...) where {T}
   N = length(size)
-  return SparseDOKArray{T,N}(Dict{CartesianIndex{N},T}(), size)
+  return SparseArrayDOK{T,N}(Dict{CartesianIndex{N},T}(), size)
 end
-function isstored(a::SparseDOKArray, I::Int...)
+function isstored(a::SparseArrayDOK, I::Int...)
   return CartesianIndex(I) in keys(storage(a))
 end
-function getstoredindex(a::SparseDOKArray, I::Int...)
+function getstoredindex(a::SparseArrayDOK, I::Int...)
   return storage(a)[CartesianIndex(I)]
 end
-function getunstoredindex(a::SparseDOKArray, I::Int...)
+function getunstoredindex(a::SparseArrayDOK, I::Int...)
   return zero(eltype(a))
 end
-function setstoredindex!(a::SparseDOKArray, value, I::Int...)
+function setstoredindex!(a::SparseArrayDOK, value, I::Int...)
   storage(a)[CartesianIndex(I)] = value
   return a
 end
-function setunstoredindex!(a::SparseDOKArray, value, I::Int...)
+function setunstoredindex!(a::SparseArrayDOK, value, I::Int...)
   storage(a)[CartesianIndex(I)] = value
   return a
 end
@@ -112,32 +112,32 @@ end
 Specify the interface the type adheres to.
 
 ````julia
-Derive.interface(::Type{<:SparseDOKArray}) = SparseArrayInterface()
+Derive.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
 ````
 
-Define aliases like `SparseDOKMatrix`, `AnySparseDOKArray`, etc.
+Define aliases like `SparseMatrixDOK`, `AnySparseArrayDOK`, etc.
 
 ````julia
-@array_aliases SparseDOK
+@array_aliases SparseArrayDOK
 ````
 
 Derive the interface for the type.
 
 ````julia
-@derive (T=SparseDOKArray,) begin
+@derive (T=SparseArrayDOK,) begin
   Base.getindex(::T, ::Int...)
   Base.setindex!(::T, ::Any, ::Int...)
 end
 
-a = SparseDOKArray{Float64}(2, 2)
+a = SparseArrayDOK{Float64}(2, 2)
 a[1, 1] = 2
 @test a[1, 1] == 2
 @test a[2, 1] == 0
 @test a[1, 2] == 0
 @test a[2, 2] == 0
 
-@test a isa SparseDOKMatrix
-@test a' isa AnySparseDOKMatrix
+@test a isa SparseMatrixDOK
+@test a' isa AnySparseMatrixDOK
 ````
 
 Call the sparse array interface on a dense array.
