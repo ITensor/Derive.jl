@@ -7,6 +7,21 @@
 # [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 # [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
+# ## About
+
+# This is a package for defining and deriving functionality for objects based around interfaces and traits,
+# outside of the Julia type hierarchy.
+# It is heavily inspired by [Moshi.@derive](https://rogerluo.dev/Moshi.jl/start/derive), which itself is inspired by
+# [Rust's derive functionality](https://doc.rust-lang.org/rust-by-example/trait/derive.html), and the design of
+# [ArrayLayouts.jl](https://github.com/JuliaLinearAlgebra/ArrayLayouts.jl).
+#
+# The basic idea is to define implementations of a set of functions for a given interface, and types
+# can overload, or derive, those implementations by specifying the desired interface. This provides
+# a systematic way to define implementations of functions for objects that act in a certain way but may
+# not share convenient abstact supertypes, such as a sparse array object and wrappers around that sparse
+# array. Like in `Moshi.jl` and Rust's derive functionality, traits are simply sets of functions
+# that can be derived for a certain type.
+
 # ## Installation instructions
 
 # This package resides in the `ITensor/ITensorRegistry` local registry.
