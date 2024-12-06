@@ -27,7 +27,7 @@ or:
 ```
 to:
 ```julia
-Derive.call(::typeof(SparseArrayInterface()), Base.getindex, a, I...)
+Derive.call(SparseArrayInterface(), Base.getindex, a, I...)
 ```
 =#
 function interface_call(interface::Union{Symbol,Expr}, func::Expr)
@@ -48,7 +48,7 @@ Rewrite:
 ```
 to:
 ```julia
-Derive.call(::typeof(SparseArrayInterface()), Base.getindex, a, I...)
+Derive.call(SparseArrayInterface(), Base.getindex, a, I...)
 ```
 =#
 function interface_ref(interface::Union{Symbol,Expr}, func::Expr)
@@ -65,7 +65,7 @@ Rewrite:
 ```
 to:
 ```julia
-Derive.call(::typeof(SparseArrayInterface()), Base.setindex!, a, value, I...)
+Derive.call(SparseArrayInterface(), Base.setindex!, a, value, I...)
 ```
 =#
 function interface_setref(interface::Union{Symbol,Expr}, func::Expr)
@@ -78,14 +78,14 @@ end
 #=
 Rewrite:
 ```julia
-@interface SparseArrayInterface() function Base.getindex(a, I::Int...)
+@interface SparseArrayInterface function Base.getindex(a, I::Int...)
   !isstored(a, I...) && return getunstoredindex(a, I...)
   return getstoredindex(a, I...)
 end
 ```
 to:
 ```julia
-function Derive.call(::typeof(SparseArrayInterface()), Base.getindex, a, I::Int...)
+function Derive.call(::SparseArrayInterface, Base.getindex, a, I::Int...)
   !isstored(a, I...) && return getunstoredindex(a, I...)
   return getstoredindex(a, I...)
 end
@@ -98,7 +98,7 @@ function interface_definition(interface::Union{Symbol,Expr}, func::Expr)
   # We use `Core.Typeof` here because `name` can either be a function or type,
   # and `typeof(T::Type)` outputs things like `DataType`, `UnionAll`, etc.
   # while `Core.Typeof(T::Type)` returns `Type{T}`.
-  new_args = [:(::typeof($interface)); :(::Core.Typeof($name)); args]
+  new_args = [:(::$interface); :(::Core.Typeof($name)); args]
   return globalref_derive(
     codegen_ast(
       JLFunction(; name=new_name, args=new_args, kwargs, rettype, whereparams, body)
