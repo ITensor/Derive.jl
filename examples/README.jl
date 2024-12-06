@@ -52,7 +52,7 @@ julia> Pkg.add("Derive")
 
 # ## Examples
 
-using Derive: Derive, @derive, @interface, interface
+using Derive: Derive, @array_aliases, @derive, @interface, interface
 using Test: @test
 
 # Define an interface.
@@ -104,8 +104,11 @@ function setunstoredindex!(a::SparseArrayDOK, value, I::Int...)
   return a
 end
 
-# Speficy the interface the type adheres to.
+# Specify the interface the type adheres to.
 Derive.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
+
+# Define aliases like `SparseMatrixDOK`, `AnySparseArrayDOK`, etc.
+@array_aliases SparseArrayDOK
 
 # Derive the interface for the type.
 @derive (T=SparseArrayDOK,) begin
@@ -119,6 +122,9 @@ a[1, 1] = 2
 @test a[2, 1] == 0
 @test a[1, 2] == 0
 @test a[2, 2] == 0
+
+@test a isa SparseMatrixDOK
+@test a' isa AnySparseMatrixDOK
 
 # Call the sparse array interface on a dense array.
 isstored(a::AbstractArray, I::Int...) = true
