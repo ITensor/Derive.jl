@@ -8,7 +8,7 @@ interface(::Type) = error("Interface unknown.")
 function combine_interfaces(x1, x2, x_rest...)
   return combine_interfaces(combine_interfaces(x1, x2), x_rest...)
 end
-combine_interfaces(x1, x2) = comine_interface_rule(interface(x1), interface(x2))
+combine_interfaces(x1, x2) = combine_interface_rule(interface(x1), interface(x2))
 combine_interfaces(x) = interface(x)
 
 # Rules for combining interfaces.
