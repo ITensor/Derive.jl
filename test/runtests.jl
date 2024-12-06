@@ -1,25 +1,27 @@
-using SafeTestsets: @safetestset
-using Suppressor: @suppress
+using Test: @testset
 
-# check for filtered groups
-# either via `--group=ALL` or through ENV["GROUP"]
-const pat = r"(?:--group=)(\w+)"
-arg_id = findfirst(contains(pat), ARGS)
-const GROUP = uppercase(
-  if isnothing(arg_id)
-    get(ENV, "GROUP", "ALL")
-  else
-    only(match(pat, ARGS[arg_id]).captures)
-  end,
-)
+@testset "Derive.jl tests" begin
+  using SafeTestsets: @safetestset
+  using Suppressor: @suppress
 
-function istestfile(filename)
-  return isfile(filename) &&
-         endswith(filename, ".jl") &&
-         startswith(basename(filename), "test")
-end
+  # check for filtered groups
+  # either via `--group=ALL` or through ENV["GROUP"]
+  pat = r"(?:--group=)(\w+)"
+  arg_id = findfirst(contains(pat), ARGS)
+  GROUP = uppercase(
+    if isnothing(arg_id)
+      get(ENV, "GROUP", "ALL")
+    else
+      only(match(pat, ARGS[arg_id]).captures)
+    end,
+  )
 
-@time begin
+  function istestfile(filename)
+    return isfile(filename) &&
+           endswith(filename, ".jl") &&
+           startswith(basename(filename), "test")
+  end
+
   # tests in groups based on folder structure
   for testgroup in filter(isdir, readdir(@__DIR__))
     if GROUP == "ALL" || GROUP == uppercase(testgroup)
