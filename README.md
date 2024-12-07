@@ -60,12 +60,12 @@ struct SparseArrayInterface end
 Define interface functions.
 
 ````julia
-@interface SparseArrayInterface() function Base.getindex(a, I::Int...)
+@interface SparseArrayInterface function Base.getindex(a, I::Int...)
   checkbounds(a, I...)
   !isstored(a, I...) && return getunstoredindex(a, I...)
   return getstoredindex(a, I...)
 end
-@interface SparseArrayInterface() function Base.setindex!(a, value, I::Int...)
+@interface SparseArrayInterface function Base.setindex!(a, value, I::Int...)
   checkbounds(a, I...)
   iszero(value) && return a
   if !isstored(a, I...)
