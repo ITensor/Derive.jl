@@ -1,0 +1,5 @@
+- Split matrix operations from `AbstractArrayOps` into `AbstractMatrixOps`.
+- Add `ndims` type parameter to `AbstractArrayInterface`, define aliases like `AbstractMatrixInterface`.
+- Define `copyto!``/`copy!` (including `Transpose`, `Adjoint`, etc.).
+- Define reductions like `mapreduce`, `iszero`, `isreal`, etc.
+- Use `GlobalRef` in `@derive` to avoiding having to load `ArrayLayouts` and `LinearAlgebra` when deriving `AbstractArrayOps`.
