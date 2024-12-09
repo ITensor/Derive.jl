@@ -23,3 +23,9 @@ function derive(::Val{:AbstractArrayOps}, type)
     LinearAlgebra.mul!(::AbstractMatrix, ::$type, ::$type, ::Number, ::Number)
   end
 end
+
+function derive(::Val{:AbstractArrayStyleOps}, type)
+  return quote
+    Base.similar(::Broadcast.Broadcasted{<:$type}, ::Type, ::Tuple)
+  end
+end

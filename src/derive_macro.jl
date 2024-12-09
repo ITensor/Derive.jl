@@ -115,9 +115,10 @@ function replace_typevars(types::Expr, func::Expr)
     typevar, type = @match type_expr begin
       :($x = $y) => (x, y)
     end
+    # TODO: Handle type parameters in other positions besides the first one.
     new_args = map(args) do arg
       return @match arg begin
-        :(::Type{<:$T}) => T == typevar ? :(::Type{<:$type}) : :(::Type{<:$T})
+        :(::$Type{<:$T}) => T == typevar ? :(::$Type{<:$type}) : :(::$Type{<:$T})
         :(::$T...) => T == typevar ? :(::$type...) : :(::$T...)
         :(::$T) => T == typevar ? :(::$type) : :(::$T)
       end
