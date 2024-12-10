@@ -1,7 +1,7 @@
 name = "Derive"
 uuid = "a07dfc7f-7d04-4eb5-84cc-a97f051f655a"
 authors = ["ITensor developers <support@itensor.org> and contributors"]
-version = "0.3.0"
+version = "0.3.1"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
