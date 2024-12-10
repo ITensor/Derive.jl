@@ -29,18 +29,23 @@ end
   return Broadcast.DefaultArrayStyle{ndims(type)}()
 end
 
-@interface ::AbstractArrayInterface function Base.similar(
+@interface interface::AbstractArrayInterface function Base.similar(
   a::AbstractArray, T::Type, size::Tuple{Vararg{Int}}
 )
   # TODO: Maybe define as `Array{T}(undef, size...)` or
   # `invoke(Base.similar, Tuple{AbstractArray,Type,Vararg{Int}}, a, T, size)`.
   # TODO: Use `MethodError`?
-  return error("Not implemented.")
+  return similar(arraytype(interface, T), size)
+end
+
+@interface ::AbstractArrayInterface function Base.copy(a::AbstractArray)
+  a_dest = similar(a)
+  return a_dest .= a
 end
 
 # TODO: Make this more general, handle mixtures of integers and ranges (`Union{Integer,Base.OneTo}`).
 @interface interface::AbstractArrayInterface function Base.similar(
-  a::AbstractArray, T::Type, axes::Tuple{Vararg{Base.OneTo}}
+  a::AbstractArray, T::Type, axes::Tuple{Base.OneTo,Vararg{Base.OneTo}}
 )
   # TODO: Use `Base.to_shape(axes)` or
   # `Base.invoke(similar, Tuple{AbstractArray,Type,Tuple{Union{Integer,Base.OneTo},Vararg{Union{Integer,Base.OneTo}}}}, a, T, axes)`.
