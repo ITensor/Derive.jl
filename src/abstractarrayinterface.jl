@@ -1,6 +1,7 @@
 # TODO: Add `ndims` type parameter.
 abstract type AbstractArrayInterface <: AbstractInterface end
 
+# TODO: Define as `DefaultArrayInterface()`.
 function interface(::Type{<:Broadcast.AbstractArrayStyle})
   return error("Not defined.")
 end
@@ -18,10 +19,12 @@ using ArrayLayouts: ArrayLayouts
   return ArrayLayouts.layout_getindex(a, I...)
 end
 
-@interface ::AbstractArrayInterface function Base.getindex(a::AbstractArray, I::Int...)
-  # TODO: Maybe define as `ArrayLayouts.layout_getindex(a, I...)` or
-  # `invoke(getindex, Tuple{AbstractArray,Vararg{Any}}, a, I...)`.
-  # TODO: Use `MethodError`?
+# TODO: Maybe define as `ArrayLayouts.layout_getindex(a, I...)` or
+# `invoke(getindex, Tuple{AbstractArray,Vararg{Any}}, a, I...)`.
+# TODO: Use `MethodError`?
+@interface ::AbstractArrayInterface function Base.getindex(
+  a::AbstractArray{<:Any,N}, I::Vararg{Int,N}
+) where {N}
   return error("Not implemented.")
 end
 
@@ -29,12 +32,12 @@ end
   return Broadcast.DefaultArrayStyle{ndims(type)}()
 end
 
+# TODO: Maybe define as `Array{T}(undef, size...)` or
+# `invoke(Base.similar, Tuple{AbstractArray,Type,Vararg{Int}}, a, T, size)`.
+# TODO: Use `MethodError`?
 @interface interface::AbstractArrayInterface function Base.similar(
   a::AbstractArray, T::Type, size::Tuple{Vararg{Int}}
 )
-  # TODO: Maybe define as `Array{T}(undef, size...)` or
-  # `invoke(Base.similar, Tuple{AbstractArray,Type,Vararg{Int}}, a, T, size)`.
-  # TODO: Use `MethodError`?
   return similar(arraytype(interface, T), size)
 end
 
@@ -43,12 +46,12 @@ end
   return a_dest .= a
 end
 
+# TODO: Use `Base.to_shape(axes)` or
+# `Base.invoke(similar, Tuple{AbstractArray,Type,Tuple{Union{Integer,Base.OneTo},Vararg{Union{Integer,Base.OneTo}}}}, a, T, axes)`.
 # TODO: Make this more general, handle mixtures of integers and ranges (`Union{Integer,Base.OneTo}`).
 @interface interface::AbstractArrayInterface function Base.similar(
   a::AbstractArray, T::Type, axes::Tuple{Base.OneTo,Vararg{Base.OneTo}}
 )
-  # TODO: Use `Base.to_shape(axes)` or
-  # `Base.invoke(similar, Tuple{AbstractArray,Type,Tuple{Union{Integer,Base.OneTo},Vararg{Union{Integer,Base.OneTo}}}}, a, T, axes)`.
   return @interface interface similar(a, T, Base.to_shape(axes))
 end
 
@@ -80,12 +83,12 @@ end
   return f.(as...)
 end
 
+# TODO: Maybe define as
+# `invoke(Base.map!, Tuple{Any,AbstractArray,Vararg{AbstractArray}}, f, dest, as...)`.
+# TODO: Use `MethodError`?
 @interface ::AbstractArrayInterface function Base.map!(
   f, dest::AbstractArray, as::AbstractArray...
 )
-  # TODO: Maybe define as
-  # `invoke(Base.map!, Tuple{Any,AbstractArray,Vararg{AbstractArray}}, f, dest, as...)`.
-  # TODO: Use `MethodError`?
   return error("Not implemented.")
 end
 

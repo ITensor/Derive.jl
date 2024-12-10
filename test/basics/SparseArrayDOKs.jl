@@ -1,5 +1,15 @@
 module SparseArrayDOKs
 
+isstored(a::AbstractArray, I::CartesianIndex) = isstored(a, Tuple(I)...)
+getstoredindex(a::AbstractArray, I::CartesianIndex) = getstoredindex(a, Tuple(I)...)
+getunstoredindex(a::AbstractArray, I::CartesianIndex) = getunstoredindex(a, Tuple(I)...)
+function setstoredindex!(a::AbstractArray, value, I::CartesianIndex)
+  return setstoredindex!(a, value, Tuple(I)...)
+end
+function setunstoredindex!(a::AbstractArray, value, I::CartesianIndex)
+  return setunstoredindex!(a, value, Tuple(I)...)
+end
+
 using ArrayLayouts: ArrayLayouts, MatMulMatAdd, MemoryLayout
 using Derive: Derive, @array_aliases, @derive, @interface, AbstractArrayInterface, interface
 using LinearAlgebra: LinearAlgebra
@@ -8,14 +18,16 @@ using LinearAlgebra: LinearAlgebra
 struct SparseArrayInterface <: AbstractArrayInterface end
 
 # Define interface functions.
-@interface ::SparseArrayInterface function Base.getindex(a::AbstractArray, I::Int...)
+@interface ::SparseArrayInterface function Base.getindex(
+  a::AbstractArray{<:Any,N}, I::Vararg{Int,N}
+) where {N}
   checkbounds(a, I...)
   !isstored(a, I...) && return getunstoredindex(a, I...)
   return getstoredindex(a, I...)
 end
 @interface ::SparseArrayInterface function Base.setindex!(
-  a::AbstractArray, value, I::Int...
-)
+  a::AbstractArray{<:Any,N}, value, I::Vararg{Int,N}
+) where {N}
   checkbounds(a, I...)
   iszero(value) && return a
   if !isstored(a, I...)
@@ -93,19 +105,42 @@ function eachstoredindex(a::Adjoint)
   return map(CartesianIndex ∘ reverse ∘ Tuple, collect(eachstoredindex(parent(a))))
 end
 
+perm(::PermutedDimsArray{<:Any,<:Any,p}) where {p} = p
+iperm(::PermutedDimsArray{<:Any,<:Any,<:Any,ip}) where {ip} = ip
+
+# TODO: Use `Base.PermutedDimsArrays.genperm` or
+# https://github.com/jipolanco/StaticPermutations.jl?
+genperm(v, perm) = map(j -> v[j], perm)
+
 function isstored(a::PermutedDimsArray, I::Int...)
-  return isstored(parent(a), reverse(I)...)
+  return isstored(parent(a), genperm(I, iperm(a))...)
 end
 function getstoredindex(a::PermutedDimsArray, I::Int...)
-  return getstoredindex(parent(a), reverse(I)...)
+  return getstoredindex(parent(a), genperm(I, iperm(a))...)
 end
 function getunstoredindex(a::PermutedDimsArray, I::Int...)
-  return getunstoredindex(parent(a), reverse(I)...)
+  return getunstoredindex(parent(a), genperm(I, iperm(a))...)
 end
 function eachstoredindex(a::PermutedDimsArray)
-  return map(CartesianIndex ∘ reverse ∘ Tuple, collect(eachstoredindex(parent(a))))
+  return map(collect(eachstoredindex(parent(a)))) do I
+    return CartesianIndex(genperm(I, perm(a)))
+  end
 end
 
+tuple_oneto(n) = ntuple(identity, n)
+## This is an optimization for `storedvalues` for DOK.
+## function valuesview(d::Dict, keys)
+##   return @view d.vals[[Base.ht_keyindex(d, key) for key in keys]]
+## end
+
+function eachstoredparentindex(a::SubArray)
+  return filter(eachstoredindex(parent(a))) do I
+    return all(d -> I[d] ∈ parentindices(a)[d], 1:ndims(parent(a)))
+  end
+end
+function storedvalues(a::SubArray)
+  return @view parent(a)[collect(eachstoredparentindex(a))]
+end
 function isstored(a::SubArray, I::Int...)
   return isstored(parent(a), Base.reindex(parentindices(a), I)...)
 end
@@ -115,18 +150,23 @@ end
 function getunstoredindex(a::SubArray, I::Int...)
   return getunstoredindex(parent(a), Base.reindex(parentindices(a), I)...)
 end
+function setstoredindex!(a::SubArray, value, I::Int...)
+  return setstoredindex!(parent(a), value, Base.reindex(parentindices(a), I)...)
+end
+function setunstoredindex!(a::SubArray, value, I::Int...)
+  return setunstoredindex!(parent(a), value, Base.reindex(parentindices(a), I)...)
+end
 function eachstoredindex(a::SubArray)
-  nonscalardims = filter(ntuple(identity, ndims(parent(a)))) do d
+  nonscalardims = filter(tuple_oneto(ndims(parent(a)))) do d
     return !(parentindices(a)[d] isa Real)
   end
-  nonscalar_parentindices = map(d -> parentindices(a)[d], nonscalardims)
-  subindices = filter(eachstoredindex(parent(a))) do I
-    return all(d -> I[d] ∈ parentindices(a)[d], 1:ndims(parent(a)))
-  end
-  return map(collect(subindices)) do I
-    I_nonscalar = CartesianIndex(map(d -> I[d], nonscalardims))
-    return CartesianIndex(Base.reindex(nonscalar_parentindices, Tuple(I_nonscalar)))
-  end
+  return collect((
+    CartesianIndex(
+      map(nonscalardims) do d
+        return findfirst(==(I[d]), parentindices(a)[d])
+      end,
+    ) for I in eachstoredparentindex(a)
+  ))
 end
 
 # Define a type that will derive the interface.
