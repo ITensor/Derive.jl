@@ -72,4 +72,13 @@ elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   @test b isa SparseArrayDOK{elt,1}
   @test b == [12, 0]
   @test storedlength(b) == 1
+
+  a = SparseArrayDOK{elt}(2, 2)
+  @test iszero(a)
+  a[2, 1] = 21
+  a[1, 2] = 12
+  @test !iszero(a)
+  @test isreal(a)
+  @test sum(a) == 33
+  @test mapreduce(x -> 2x, +, a) == 66
 end
