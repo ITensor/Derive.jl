@@ -10,6 +10,25 @@ function setunstoredindex!(a::AbstractArray, value, I::CartesianIndex)
   return setunstoredindex!(a, value, Tuple(I)...)
 end
 
+# A view of the stored values of an array.
+# Similar to: `@view a[collect(eachstoredindex(a))]`, but the issue
+# with that is it returns a `SubArray` wrapping a sparse array, which
+# is then interpreted as a sparse array. Also, that involves extra
+# logic for determining if the indices are stored or not, but we know
+# the indices are stored.
+struct StoredValues{T,A<:AbstractArray{T},I} <: AbstractVector{T}
+  array::A
+  storedindices::I
+end
+StoredValues(a::AbstractArray) = StoredValues(a, collect(eachstoredindex(a)))
+Base.size(a::StoredValues) = size(a.storedindices)
+Base.getindex(a::StoredValues, I::Int) = getstoredindex(a.array, a.storedindices[I])
+function Base.setindex!(a::StoredValues, value, I::Int)
+  return setstoredindex!(a.array, value, a.storedindices[I])
+end
+
+storedvalues(a::AbstractArray) = StoredValues(a)
+
 using ArrayLayouts: ArrayLayouts, MatMulMatAdd, MemoryLayout
 using Derive: Derive, @array_aliases, @derive, @interface, AbstractArrayInterface, interface
 using LinearAlgebra: LinearAlgebra
@@ -29,8 +48,8 @@ end
   a::AbstractArray{<:Any,N}, value, I::Vararg{Int,N}
 ) where {N}
   checkbounds(a, I...)
-  iszero(value) && return a
   if !isstored(a, I...)
+    iszero(value) && return a
     setunstoredindex!(a, value, I...)
     return a
   end
@@ -65,6 +84,13 @@ end
     a_dest[I] = map(f, map(a -> a[I], as)...)
   end
   return a_dest
+end
+
+@interface ::SparseArrayInterface function Base.mapreduce(
+  f, op, a::AbstractArray; kwargs...
+)
+  # TODO: Need to select a better `init`.
+  return mapreduce(f, op, storedvalues(a); kwargs...)
 end
 
 # ArrayLayouts functionality.

@@ -92,6 +92,35 @@ end
   return error("Not implemented.")
 end
 
+@interface ::AbstractArrayInterface function Base.mapreduce(
+  f, op, as::AbstractArray...; kwargs...
+)
+  return error("Not implemented.")
+end
+
+# TODO: Generalize to multiple inputs.
+@interface interface::AbstractInterface function Base.reduce(f, a::AbstractArray; kwargs...)
+  return @interface interface mapreduce(identity, f, a; kwargs...)
+end
+
+@interface interface::AbstractArrayInterface function Base.all(a::AbstractArray)
+  return @interface interface reduce(&, a; init=true)
+end
+
+@interface interface::AbstractArrayInterface function Base.all(
+  f::Function, a::AbstractArray
+)
+  return @interface interface mapreduce(f, &, a; init=true)
+end
+
+@interface interface::AbstractArrayInterface function Base.iszero(a::AbstractArray)
+  return @interface interface all(iszero, a)
+end
+
+@interface interface::AbstractArrayInterface function Base.isreal(a::AbstractArray)
+  return @interface interface all(isreal, a)
+end
+
 @interface ::AbstractArrayInterface function Base.permutedims!(
   a_dest::AbstractArray, a_src::AbstractArray, perm
 )
