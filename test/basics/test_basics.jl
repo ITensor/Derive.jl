@@ -1,6 +1,7 @@
-using Test: @test, @testset
+using ArrayLayouts: zero!
 include("SparseArrayDOKs.jl")
 using .SparseArrayDOKs: SparseArrayDOK, storedlength
+using Test: @test, @testset
 
 elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
 @testset "Derive" for elt in elts
@@ -89,4 +90,30 @@ elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   @test b == a
   @test b[1, 2] == 12
   @test storedlength(b) == 1
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a .= 2
+  @test storedlength(a) == length(a)
+  for I in eachindex(a)
+    @test a[I] == 2
+  end
+
+  a = SparseArrayDOK{elt}(2, 2)
+  fill!(a, 2)
+  @test storedlength(a) == length(a)
+  for I in eachindex(a)
+    @test a[I] == 2
+  end
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  zero!(a)
+  @test iszero(a)
+  @test iszero(storedlength(a))
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  b = zero(a)
+  @test iszero(b)
+  @test iszero(storedlength(b))
 end
