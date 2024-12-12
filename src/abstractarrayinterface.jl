@@ -67,9 +67,20 @@ using BroadcastMapConversion: map_function, map_args
 # TODO: Look into `SparseArrays.capturescalars`:
 # https://github.com/JuliaSparse/SparseArrays.jl/blob/1beb0e4a4618b0399907b0000c43d9f66d34accc/src/higherorderfns.jl#L1092-L1102
 @interface interface::AbstractArrayInterface function Base.copyto!(
-  dest::AbstractArray, bc::Broadcast.Broadcasted
+  a_dest::AbstractArray, bc::Broadcast.Broadcasted
 )
-  return @interface interface map!(map_function(bc), dest, map_args(bc)...)
+  return @interface interface map!(map_function(bc), a_dest, map_args(bc)...)
+end
+
+# This captures broadcast expressions such as `a .= 2`.
+# Ideally this would be handled by `map!(f, a_dest)` but that isn't defined yet:
+# https://github.com/JuliaLang/julia/issues/31677
+# https://github.com/JuliaLang/julia/pull/40632
+@interface interface::AbstractArrayInterface function Base.copyto!(
+  a_dest::AbstractArray, bc::Broadcast.Broadcasted{Broadcast.DefaultArrayStyle{0}}
+)
+  isempty(map_args(bc)) || error("Bad broadcast expression.")
+  return @interface interface map!(map_function(bc), a_dest, a_dest)
 end
 
 # This is defined in this way so we can rely on the Broadcast logic
@@ -86,9 +97,24 @@ end
 # `invoke(Base.map!, Tuple{Any,AbstractArray,Vararg{AbstractArray}}, f, dest, as...)`.
 # TODO: Use `MethodError`?
 @interface ::AbstractArrayInterface function Base.map!(
-  f, dest::AbstractArray, as::AbstractArray...
+  f, a_dest::AbstractArray, a_srcs::AbstractArray...
 )
   return error("Not implemented.")
+end
+
+@interface interface::AbstractArrayInterface function Base.fill!(a::AbstractArray, value)
+  @interface interface map!(Returns(value), a, a)
+end
+
+# `zero!` isn't defined in `Base`, but it is defined in `ArrayLayouts`
+# and is useful for sparse array logic, since it can be used to empty
+# the sparse array storage.
+# We use a single function definition to minimize method ambiguities.
+@interface interface::AbstractArrayInterface function ArrayLayouts.zero!(a::AbstractArray)
+  # More generally, the first codepath could be taking if `zero(eltype(a))`
+  # is defined and the elements are immutable.
+  f = eltype(a) isa Number ? Returns(zero(eltype(a))) : zero!
+  return @interface interface map!(f, a, a)
 end
 
 @interface ::AbstractArrayInterface function Base.mapreduce(

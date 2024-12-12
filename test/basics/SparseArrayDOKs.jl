@@ -80,6 +80,24 @@ end
 @interface ::SparseArrayInterface function Base.map!(
   f, a_dest::AbstractArray, as::AbstractArray...
 )
+  # TODO: Define a function `preserves_unstored(a_dest, f, as...)`
+  # to determine if a function preserves the stored values
+  # of the destination sparse array.
+  # The current code may be inefficient since it actually
+  # accesses an unstored element, which in the case of a
+  # sparse array of arrays can allocate an array.
+  # Sparse arrays could be expected to define a cheap
+  # unstored element allocator, for example
+  # `get_prototypical_unstored(a::AbstractArray)`.
+  I = first(eachindex(as...))
+  preserves_unstored = iszero(f(map(a -> getunstoredindex(a, I), as)...))
+  if !preserves_unstored
+    # Doesn't preserve unstored values, loop over all elements.
+    for I in eachindex(as...)
+      a_dest[I] = map(f, map(a -> a[I], as)...)
+    end
+  end
+  # TODO: Define `eachstoredindex(as...)`.
   for I in union(eachstoredindex.(as)...)
     a_dest[I] = map(f, map(a -> a[I], as)...)
   end
@@ -229,6 +247,11 @@ function setunstoredindex!(a::SparseArrayDOK, value, I::Int...)
 end
 eachstoredindex(a::SparseArrayDOK) = keys(storage(a))
 storedlength(a::SparseArrayDOK) = length(eachstoredindex(a))
+
+function ArrayLayouts.zero!(a::SparseArrayDOK)
+  empty!(storage(a))
+  return a
+end
 
 # Specify the interface the type adheres to.
 Derive.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
