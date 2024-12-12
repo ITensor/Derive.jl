@@ -106,6 +106,8 @@ end
   @interface interface map!(Returns(value), a, a)
 end
 
+using ArrayLayouts: zero!
+
 # `zero!` isn't defined in `Base`, but it is defined in `ArrayLayouts`
 # and is useful for sparse array logic, since it can be used to empty
 # the sparse array storage.
@@ -113,8 +115,21 @@ end
 @interface interface::AbstractArrayInterface function ArrayLayouts.zero!(a::AbstractArray)
   # More generally, the first codepath could be taking if `zero(eltype(a))`
   # is defined and the elements are immutable.
-  f = eltype(a) isa Number ? Returns(zero(eltype(a))) : zero!
+  f = eltype(a) <: Number ? Returns(zero(eltype(a))) : zero!
   return @interface interface map!(f, a, a)
+end
+
+# Specialized version of `Base.zero` written in terms of `ArrayLayouts.zero!`.
+# This is friendlier for sparse arrays since `ArrayLayouts.zero!` makes it easier
+# to handle the logic of dropping all elements of the sparse array when possible.
+# We use a single function definition to minimize method ambiguities.
+@interface interface::AbstractArrayInterface function Base.zero(a::AbstractArray)
+  # More generally, the first codepath could be taking if `zero(eltype(a))`
+  # is defined and the elements are immutable.
+  if eltype(a) <: Number
+    return @interface interface zero!(similar(a))
+  end
+  return @interface interface map(interface(zero), a)
 end
 
 @interface ::AbstractArrayInterface function Base.mapreduce(

@@ -110,4 +110,10 @@ elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   zero!(a)
   @test iszero(a)
   @test iszero(storedlength(a))
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  b = zero(a)
+  @test iszero(b)
+  @test iszero(storedlength(b))
 end
