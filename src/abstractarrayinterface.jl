@@ -69,8 +69,7 @@ using BroadcastMapConversion: map_function, map_args
 @interface interface::AbstractArrayInterface function Base.copyto!(
   dest::AbstractArray, bc::Broadcast.Broadcasted
 )
-  @interface interface map!(map_function(bc), dest, map_args(bc)...)
-  return dest
+  return @interface interface map!(map_function(bc), dest, map_args(bc)...)
 end
 
 # This is defined in this way so we can rely on the Broadcast logic
@@ -121,12 +120,22 @@ end
   return @interface interface all(isreal, a)
 end
 
-@interface ::AbstractArrayInterface function Base.permutedims!(
+@interface interface::AbstractArrayInterface function Base.permutedims!(
   a_dest::AbstractArray, a_src::AbstractArray, perm
 )
-  # TODO: Should this be `@interface interface ...`?
-  a_dest .= PermutedDimsArray(a_src, perm)
-  return a_dest
+  return @interface interface map!(identity, a_dest, PermutedDimsArray(a_src, perm))
+end
+
+@interface interface::AbstractArrayInterface function Base.copyto!(
+  a_dest::AbstractArray, a_src::AbstractArray
+)
+  return @interface interface map!(identity, a_dest, a_src)
+end
+
+@interface interface::AbstractArrayInterface function Base.copy!(
+  a_dest::AbstractArray, a_src::AbstractArray
+)
+  return @interface interface map!(identity, a_dest, a_src)
 end
 
 using LinearAlgebra: LinearAlgebra

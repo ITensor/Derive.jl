@@ -81,4 +81,12 @@ elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   @test isreal(a)
   @test sum(a) == 33
   @test mapreduce(x -> 2x, +, a) == 66
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  b = similar(a)
+  copyto!(b, a)
+  @test b == a
+  @test b[1, 2] == 12
+  @test storedlength(b) == 1
 end
