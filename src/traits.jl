@@ -1,6 +1,17 @@
 using ArrayLayouts: ArrayLayouts
 using LinearAlgebra: LinearAlgebra
 
+# TODO: Create a macro:
+#=
+```
+@derive_def AbstractArrayOps T begin
+  Base.getindex(::T, ::Any...)
+  Base.getindex(::T, ::Int...)
+  Base.setindex!(::T, ::Any, ::Int...)
+  Base.similar(::T, ::Type, ::Tuple{Vararg{Int}})
+end
+```
+=#
 # TODO: Define an `AbstractMatrixOps` trait, which is where
 # matrix multiplication should be defined (both `mul!` and `*`).
 #=

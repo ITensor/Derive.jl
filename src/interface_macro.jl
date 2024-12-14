@@ -5,13 +5,22 @@ macro interface(expr...)
   return esc(interface_expr(expr...))
 end
 
+# TODO: Use `MLStyle.@match`/`Moshi.@match`.
+# f(args...)
+iscallexpr(expr) = Meta.isexpr(expr, :call)
+# a[I...]
+isrefexpr(expr) = Meta.isexpr(expr, :ref)
+# a[I...] = value
+issetrefexpr(expr) = Meta.isexpr(expr, :(=)) && isrefexpr(expr.args[1])
+
 function interface_expr(interface::Union{Symbol,Expr}, func::Expr)
+  # TODO: Use `MLStyle.@match`/`Moshi.@match`.
   # f(args...)
-  Meta.isexpr(func, :call) && return interface_call(interface, func)
+  iscallexpr(func) && return interface_call(interface, func)
   # a[I...]
-  Meta.isexpr(func, :ref) && return interface_ref(interface, func)
+  isrefexpr(func) && return interface_ref(interface, func)
   # a[I...] = value
-  Meta.isexpr(func, :(=)) && return interface_setref(interface, func)
+  issetrefexpr(func) && return interface_setref(interface, func)
   # Assume it is a function definition.
   return interface_definition(interface, func)
 end
