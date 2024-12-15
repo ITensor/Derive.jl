@@ -87,6 +87,7 @@ elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   a[1, 2] = 12
   b = similar(a)
   copyto!(b, a)
+  @test b isa SparseArrayDOK{elt,2}
   @test b == a
   @test b[1, 2] == 12
   @test storedlength(b) == 1
@@ -114,6 +115,39 @@ elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   a = SparseArrayDOK{elt}(2, 2)
   a[1, 2] = 12
   b = zero(a)
+  @test b isa SparseArrayDOK{elt,2}
   @test iszero(b)
   @test iszero(storedlength(b))
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  b = SparseArrayDOK{elt}(4, 4)
+  b[2:3, 2:3] .= a
+  @test isone(storedlength(b))
+  @test b[2, 3] == 12
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  b = SparseArrayDOK{elt}(4, 4)
+  b[2:3, 2:3] = a
+  @test isone(storedlength(b))
+  @test b[2, 3] == 12
+
+  a = SparseArrayDOK{elt}(2, 2)
+  a[1, 2] = 12
+  b = SparseArrayDOK{elt}(4, 4)
+  c = @view b[2:3, 2:3]
+  c .= a
+  @test isone(storedlength(b))
+  @test b[2, 3] == 12
+
+  a1 = SparseArrayDOK{elt}(2, 2)
+  a1[1, 2] = 12
+  a2 = SparseArrayDOK{elt}(2, 2)
+  a2[2, 1] = 21
+  b = cat(a1, a2; dims=(1, 2))
+  @test b isa SparseArrayDOK{elt,2}
+  @test storedlength(b) == 2
+  @test b[1, 2] == 12
+  @test b[4, 3] == 21
 end
