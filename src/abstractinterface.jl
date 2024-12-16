@@ -2,6 +2,7 @@
 interface(x) = interface(typeof(x))
 # TODO: Define as `DefaultInterface()`.
 interface(::Type) = error("Interface unknown.")
+interface(x1, x_rest...) = combine_interfaces(x1, x_rest...)
 
 # Adapted from `Base.Broadcast.combine_styles`.
 # Get the combined interfaces of the input objects.
