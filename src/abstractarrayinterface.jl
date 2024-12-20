@@ -44,11 +44,25 @@ end
   return @interface interface getindex(a, Tuple(I)...)
 end
 
+# Linear indexing.
+@interface interface ::AbstractArrayInterface function Base.getindex(
+  a::AbstractArray, I::Int
+)
+  return @interface interface getindex(a, CartesianIndices(a)[I])
+end
+
 # TODO: Use `MethodError`?
 @interface ::AbstractArrayInterface function Base.setindex!(
   a::AbstractArray{<:Any,N}, value, I::Vararg{Int,N}
 ) where {N}
   return error("Not implemented.")
+end
+
+# Linear indexing.
+@interface interface ::AbstractArrayInterface function Base.setindex!(
+  a::AbstractArray, value, I::Int
+)
+  return @interface interface setindex!(a, value, CartesianIndices(a)[I])
 end
 
 # TODO: Make this more general, use `Base.to_index`.
