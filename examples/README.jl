@@ -13,7 +13,8 @@
 # outside of the Julia type hierarchy.
 # It is heavily inspired by [Moshi.@derive](https://rogerluo.dev/Moshi.jl/start/derive), which itself is inspired by
 # [Rust's derive functionality](https://doc.rust-lang.org/rust-by-example/trait/derive.html), and the design of
-# [ArrayLayouts.jl](https://github.com/JuliaLinearAlgebra/ArrayLayouts.jl).
+# [ArrayLayouts.jl](https://github.com/JuliaLinearAlgebra/ArrayLayouts.jl). See also
+# [ForwardMethods.jl](https://github.com/curtd/ForwardMethods.jl).
 #
 # The basic idea is to define implementations of a set of functions for a given interface, and types
 # can overload, or derive, those implementations by specifying the desired interface. This provides
