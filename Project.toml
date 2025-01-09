@@ -1,5 +1,5 @@
-name = "Derive"
-uuid = "a07dfc7f-7d04-4eb5-84cc-a97f051f655a"
+name = "DerivableInterfaces"
+uuid = "6c5e35bf-e59e-4898-b73c-732dcc4ba65f"
 authors = ["ITensor developers <support@itensor.org> and contributors"]
 version = "0.3.6"
 

@@ -30,7 +30,13 @@ end
 storedvalues(a::AbstractArray) = StoredValues(a)
 
 using ArrayLayouts: ArrayLayouts, MatMulMatAdd, MemoryLayout
-using Derive: Derive, @array_aliases, @derive, @interface, AbstractArrayInterface, interface
+using DerivableInterfaces:
+  DerivableInterfaces,
+  @array_aliases,
+  @derive,
+  @interface,
+  AbstractArrayInterface,
+  interface
 using LinearAlgebra: LinearAlgebra
 
 # Define an interface.
@@ -60,11 +66,11 @@ end
 struct SparseArrayStyle{N} <: Broadcast.AbstractArrayStyle{N} end
 SparseArrayStyle{M}(::Val{N}) where {M,N} = SparseArrayStyle{N}()
 
-Derive.interface(::Type{<:SparseArrayStyle}) = SparseArrayInterface()
+DerivableInterfaces.interface(::Type{<:SparseArrayStyle}) = SparseArrayInterface()
 
 @derive SparseArrayStyle AbstractArrayStyleOps
 
-Derive.arraytype(::SparseArrayInterface, T::Type) = SparseArrayDOK{T}
+DerivableInterfaces.arraytype(::SparseArrayInterface, T::Type) = SparseArrayDOK{T}
 
 # Interface functions.
 @interface ::SparseArrayInterface function Broadcast.BroadcastStyle(type::Type)
@@ -254,12 +260,12 @@ function ArrayLayouts.zero!(a::SparseArrayDOK)
 end
 
 # Specify the interface the type adheres to.
-Derive.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
+DerivableInterfaces.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
 
 # Define aliases like `SparseMatrixDOK`, `AnySparseArrayDOK`, etc.
 @array_aliases SparseArrayDOK
 
-# Derive the interface for the type.
+# DerivableInterfaces the interface for the type.
 @derive AnySparseArrayDOK AbstractArrayOps
 
 end

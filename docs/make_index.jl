@@ -1,9 +1,9 @@
 using Literate: Literate
-using Derive: Derive
+using DerivableInterfaces: DerivableInterfaces
 
 Literate.markdown(
-  joinpath(pkgdir(Derive), "examples", "README.jl"),
-  joinpath(pkgdir(Derive), "docs", "src");
+  joinpath(pkgdir(DerivableInterfaces), "examples", "README.jl"),
+  joinpath(pkgdir(DerivableInterfaces), "docs", "src");
   flavor=Literate.DocumenterFlavor(),
   name="index",
 )

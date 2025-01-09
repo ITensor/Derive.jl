@@ -1,4 +1,4 @@
-module Derive
+module DerivableInterfaces
 
 include("interface_function.jl")
 include("abstractinterface.jl")

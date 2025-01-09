@@ -36,15 +36,17 @@ or:
 ```
 to:
 ```julia
-Derive.call(SparseArrayInterface(), Base.getindex, a, I...)
+DerivableInterfaces.call(SparseArrayInterface(), Base.getindex, a, I...)
 ```
 =#
 function interface_call(interface::Union{Symbol,Expr}, func::Expr)
   return @match func begin
     :($name($(args...))) =>
-      :($(GlobalRef(Derive, :InterfaceFunction))($interface, $name)($(args...)))
+      :($(GlobalRef(DerivableInterfaces, :InterfaceFunction))($interface, $name)(
+        $(args...)
+      ))
     :($name($(args...); $(kwargs...))) =>
-      :($(GlobalRef(Derive, :InterfaceFunction))($interface, $name)(
+      :($(GlobalRef(DerivableInterfaces, :InterfaceFunction))($interface, $name)(
         $(args...); $(kwargs...)
       ))
   end
@@ -57,7 +59,7 @@ Rewrite:
 ```
 to:
 ```julia
-Derive.call(SparseArrayInterface(), Base.getindex, a, I...)
+DerivableInterfaces.call(SparseArrayInterface(), Base.getindex, a, I...)
 ```
 =#
 function interface_ref(interface::Union{Symbol,Expr}, func::Expr)
@@ -74,7 +76,7 @@ Rewrite:
 ```
 to:
 ```julia
-Derive.call(SparseArrayInterface(), Base.setindex!, a, value, I...)
+DerivableInterfaces.call(SparseArrayInterface(), Base.setindex!, a, value, I...)
 ```
 =#
 function interface_setref(interface::Union{Symbol,Expr}, func::Expr)
@@ -94,7 +96,7 @@ end
 ```
 to:
 ```julia
-function Derive.call(interface::SparseArrayInterface, Base.getindex, a, I::Int...)
+function DerivableInterfaces.call(interface::SparseArrayInterface, Base.getindex, a, I::Int...)
   !isstored(a, I...) && return getunstoredindex(a, I...)
   return getstoredindex(a, I...)
 end
@@ -103,7 +105,7 @@ end
 function interface_definition(interface::Union{Symbol,Expr}, func::Expr)
   head, call, body = split_function(func)
   name, args, kwargs, whereparams, rettype = split_function_head(call)
-  new_name = :(Derive.call)
+  new_name = :(DerivableInterfaces.call)
   # We use `Core.Typeof` here because `name` can either be a function or type,
   # and `typeof(T::Type)` outputs things like `DataType`, `UnionAll`, etc.
   # while `Core.Typeof(T::Type)` returns `Type{T}`.

@@ -4,7 +4,7 @@ using .SparseArrayDOKs: SparseArrayDOK, storedlength
 using Test: @test, @testset
 
 elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
-@testset "Derive" for elt in elts
+@testset "DerivableInterfaces" for elt in elts
   a = SparseArrayDOK{elt}(2, 2)
   a[1, 2] = 12
   @test a isa SparseArrayDOK{elt,2}

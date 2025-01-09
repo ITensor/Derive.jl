@@ -1,4 +1,4 @@
-using Derive
+using DerivableInterfaces
 using BenchmarkTools
 
 SUITE = BenchmarkGroup()

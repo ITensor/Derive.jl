@@ -1,5 +1,5 @@
 #=
-Rewrite `f(args...)` to `Derive.call(interface, f, args...)`.
+Rewrite `f(args...)` to `DerivableInterfaces.call(interface, f, args...)`.
 Similar to `Cassette.overdub`.
 
 This errors for debugging, but probably should be defined as:

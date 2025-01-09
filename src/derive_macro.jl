@@ -5,7 +5,7 @@ argname(i::Int) = Symbol(:arg, i)
 
 # Remove lines from a block.
 # See: https://thautwarm.github.io/MLStyle.jl/stable/syntax/pattern/#Ast-Pattern-1
-# TODO: Use this type of function to replace `Derive.f` with `GlobalRef(Derive, f)`
+# TODO: Use this type of function to replace `DerivableInterfaces.f` with `GlobalRef(DerivableInterfaces, f)`
 # and also replace `T` with `SparseArrayDOK`.
 function rmlines(expr)
   return @match expr begin
@@ -17,7 +17,7 @@ end
 
 function globalref_derive(expr)
   return @match expr begin
-    :(Derive.$f) => :($(GlobalRef(Derive, :($f))))
+    :(DerivableInterfaces.$f) => :($(GlobalRef(DerivableInterfaces, :($f))))
     e::Expr => Expr(e.head, map(globalref_derive, e.args)...)
     a => a
   end
@@ -165,7 +165,9 @@ function derive_func_from_types(types::Expr, func::Expr)
     end
     return argname(i)
   end
-  interface = globalref_derive(:(Derive.combine_interfaces($(active_argnames...))))
+  interface = globalref_derive(
+    :(DerivableInterfaces.combine_interfaces($(active_argnames...)))
+  )
   return derive_interface_func(interface, new_func)
 end
 
@@ -200,18 +202,18 @@ function derive_interface_func(interface::Union{Symbol,Expr}, func::Expr)
       :(::$T...) => :($argname...)
     end
   end
-  # TODO: Use the `@interface` macro rather than `Derive.call`
+  # TODO: Use the `@interface` macro rather than `DerivableInterfaces.call`
   # directly, in case we want to change the implementation.
   body_args = [interface; name; body_args...]
   body_name = @match name begin
-    :($M.$f) => :(Derive.call)
+    :($M.$f) => :(DerivableInterfaces.call)
   end
   # TODO: Remove defaults from `kwargs`.
   _, body, _ = split_function(
     codegen_ast(JLFunction(; name=body_name, args=body_args, kwargs))
   )
   jlfn = JLFunction(; name, args=named_args, kwargs, whereparams, rettype, body)
-  # Use `globalref_derive` to not require having `Derive` in the
+  # Use `globalref_derive` to not require having `DerivableInterfaces` in the
   # namespace when `@derive` is called.
   return globalref_derive(codegen_ast(jlfn))
 end

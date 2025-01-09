@@ -1,9 +1,9 @@
 using Literate: Literate
-using Derive: Derive
+using DerivableInterfaces: DerivableInterfaces
 
 Literate.markdown(
-  joinpath(pkgdir(Derive), "examples", "README.jl"),
-  joinpath(pkgdir(Derive));
+  joinpath(pkgdir(DerivableInterfaces), "examples", "README.jl"),
+  joinpath(pkgdir(DerivableInterfaces));
   flavor=Literate.CommonMarkFlavor(),
   name="README",
 )

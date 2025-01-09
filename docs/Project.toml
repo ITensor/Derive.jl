@@ -1,4 +1,4 @@
 [deps]
-Derive = "a07dfc7f-7d04-4eb5-84cc-a97f051f655a"
+DerivableInterfaces = "6c5e35bf-e59e-4898-b73c-732dcc4ba65f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"

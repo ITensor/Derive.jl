@@ -1,6 +1,6 @@
 ---
-name: Derive.jl feature request
-about: Suggest an idea for Derive.jl
+name: DerivableInterfaces.jl feature request
+about: Suggest an idea for DerivableInterfaces.jl
 title: "[ENHANCEMENT] YOUR SHORT DESCRIPTION OF THE FEATURE REQUEST HERE"
 labels: ["enhancement"]
 assignees: ''

@@ -1,18 +1,24 @@
-using Derive: Derive
+using DerivableInterfaces: DerivableInterfaces
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
-DocMeta.setdocmeta!(Derive, :DocTestSetup, :(using Derive); recursive=true)
+DocMeta.setdocmeta!(
+  DerivableInterfaces, :DocTestSetup, :(using DerivableInterfaces); recursive=true
+)
 
 include("make_index.jl")
 
 makedocs(;
-  modules=[Derive],
+  modules=[DerivableInterfaces],
   authors="ITensor developers <support@itensor.org> and contributors",
-  sitename="Derive.jl",
+  sitename="DerivableInterfaces.jl",
   format=Documenter.HTML(;
-    canonical="https://ITensor.github.io/Derive.jl", edit_link="main", assets=String[]
+    canonical="https://ITensor.github.io/DerivableInterfaces.jl",
+    edit_link="main",
+    assets=String[],
   ),
   pages=["Home" => "index.md"],
 )
 
-deploydocs(; repo="github.com/ITensor/Derive.jl", devbranch="main", push_preview=true)
+deploydocs(;
+  repo="github.com/ITensor/DerivableInterfaces.jl", devbranch="main", push_preview=true
+)

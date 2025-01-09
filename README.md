@@ -1,9 +1,9 @@
-# Derive.jl
+# DerivableInterfaces.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://ITensor.github.io/Derive.jl/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://ITensor.github.io/Derive.jl/dev/)
-[![Build Status](https://github.com/ITensor/Derive.jl/actions/workflows/Tests.yml/badge.svg?branch=main)](https://github.com/ITensor/Derive.jl/actions/workflows/Tests.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/ITensor/Derive.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ITensor/Derive.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://ITensor.github.io/DerivableInterfaces.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://ITensor.github.io/DerivableInterfaces.jl/dev/)
+[![Build Status](https://github.com/ITensor/DerivableInterfaces.jl/actions/workflows/Tests.yml/badge.svg?branch=main)](https://github.com/ITensor/DerivableInterfaces.jl/actions/workflows/Tests.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/ITensor/DerivableInterfaces.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ITensor/DerivableInterfaces.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
@@ -42,13 +42,13 @@ if you want to use SSH credentials, which can make it so you don't have to enter
 Then, the package can be added as usual through the package manager:
 
 ```julia
-julia> Pkg.add("Derive")
+julia> Pkg.add("DerivableInterfaces")
 ```
 
 ## Examples
 
 ````julia
-using Derive: Derive, @array_aliases, @derive, @interface, interface
+using DerivableInterfaces: DerivableInterfaces, @array_aliases, @derive, @interface, interface
 using Test: @test
 ````
 
@@ -113,7 +113,7 @@ end
 Specify the interface the type adheres to.
 
 ````julia
-Derive.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
+DerivableInterfaces.interface(::Type{<:SparseArrayDOK}) = SparseArrayInterface()
 ````
 
 Define aliases like `SparseMatrixDOK`, `AnySparseArrayDOK`, etc.
@@ -122,7 +122,7 @@ Define aliases like `SparseMatrixDOK`, `AnySparseArrayDOK`, etc.
 @array_aliases SparseArrayDOK
 ````
 
-Derive the interface for the type.
+DerivableInterfaces the interface for the type.
 
 ````julia
 @derive (T=SparseArrayDOK,) begin

@@ -2,7 +2,7 @@ using SafeTestsets: @safetestset
 using Suppressor: @suppress
 using Test: @testset
 
-@testset "Derive.jl tests" begin
+@testset "DerivableInterfaces.jl tests" begin
   # check for filtered groups
   # either via `--group=ALL` or through ENV["GROUP"]
   pat = r"(?:--group=)(\w+)"
